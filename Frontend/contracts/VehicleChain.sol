@@ -46,8 +46,7 @@ contract VehicleChain {
     }
 
     struct ServicingData {
-        string msp;
-        string vehicleId;
+        address msp;
         string vehicleRegistrationNumber;
         string description;
         uint mileage;
@@ -322,13 +321,38 @@ contract VehicleChain {
         require(bytes(email).length > 0, "Email is required");
         require(bytes(password).length > 0, "Password is required");
         require(updated_at_at > 0, "CreatedAt is invalid");
-        require(isMSPExists[msg.sender] == false, "Vehicle Owner already registered");
+        require(isMSPExists[msg.sender] == true, "MSP does not registered");
 
         isMSPExists[msg.sender] = true;
         membershipServiceProvider[msg.sender] = membershipServiceProvider(name, nid, presentResidency, email, token, created_at);
     }
 
+    function createServicingData(
+        string vehicleRegistrationNumber,
+        string description,
+        uint mileage,
+        string damagedParts,
+        string engineCondition,
+        bool isVehicleWellMaintained,
+        int created_at
+    ) public payable {
+        require(bytes(vehicleRegistrationNumber).length > 0, "MSP Name is required");
+        require(bytes(description).length > 0, "Location is required");
+        require(mileage > 0, "Mileage is required");
+        require(bytes(damagedParts).length > 0, "Damaged parts is required");
+        require(bytes(engineCondition), "Engine condition is required");
+        require(isVehicleWellMaintained == true || isVehicleWellMaintained == false, "IsVehicleWellMaintained will be true or false");
+        require(isMSPExists[msg.sender] == true, "MSP does not exist");
 
+        MSP memory msp = membershipServiceProvider[msg.sender];
+        isServicingDataExists[id] = true;
+
+        msp[id] = MSP(msg.sender, vehicleRegistrationNumber, description, mileage, damagedParts,
+            engineCondition, isVehicleWellMaintained, created_at);
+
+
+        emit servicingDataCreated(id, vehicleRegistrationNumber, description, created_at);
+    }
 
     function loginAdmin(string memory gmail, string memory password) public view returns (bool) {
         require(bytes(gmail).length > 0, "Gmail is required");

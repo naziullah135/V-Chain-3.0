@@ -1,0 +1,126 @@
+@import "./index.scss";
+
+.mg-l-50 {
+	margin-left: 50px;
+}
+
+@media (min-width: 1366px) {
+	.main-container {
+		display: flex;
+		overflow-x: hidden;
+		position: relative;
+		perspective: 1px;
+		touch-action: none;
+
+		.sidebar-dummy {
+			flex-grow: 1;
+			min-width: 320px;
+			max-width: 320px;
+			background: none !important;
+		}
+
+		.sidebar {
+			flex-grow: 1;
+			min-width: 320px;
+			max-width: 320px;
+			background-color: $color-white;
+			padding: 4.5rem 7rem 4.5rem 9rem;
+			position: relative;
+
+			display: flex;
+			flex-direction: column;
+			justify-content: space-between;
+		}
+
+		main.main {
+			flex-grow: 1;
+
+			display: flex;
+			flex-direction: column;
+		}
+	}
+
+	.logo {
+		position: fixed;
+		left: 0px;
+		padding: 0rem 7rem 4.5rem 9rem;
+	}
+
+	.links {
+		min-width: 320px;
+		max-width: 320px;
+
+		display: flex;
+		flex-direction: column;
+		position: fixed;
+		left: 0px;
+		padding: 4.5rem 7rem 4.5rem 9rem;
+		max-height: 100vh;
+		max-height: 80vh;
+		top: calc(100vh / 2 - 155px);
+
+		.nav {
+			display: flex;
+			flex-direction: column;
+			justify-content: space-between;
+
+			&--item {
+				font-family: 'Poppins';
+				font-style: normal;
+				font-weight: 600;
+				font-size: 15px;
+				line-height: 22px;
+
+				color: #5A5F72;
+
+				padding: 1.4rem 0;
+
+				&__active {
+					color: $color-primary;
+					font-weight: 700;
+				}
+
+				&:hover {
+					color: $color-primary;
+					font-weight: 700;
+					cursor: pointer;
+				}
+			}
+		}
+
+		.social {
+			display: flex;
+			justify-content: space-between;
+			margin-top: 8rem;
+			max-width: 200px;
+
+			&--item {
+				padding: 0;
+
+				&:hover {
+					color: $color-primary;
+					cursor: pointer;
+				}
+			}
+		}
+	}
+
+	// .c-scrollbar:first-of-type { display: none; }
+
+	.side-cover {
+		position: absolute;
+		min-width: 100%;
+		min-height: calc(80vh - 200px);
+		bottom: 0;
+		transform: translateY(calc(80vh - 200px));
+
+		background-color: $color-white;
+		pointer-events: none;
+	}
+
+	.profile {
+		position: fixed;
+		bottom: 0px;
+		padding: 0rem 7rem 4.5rem 9rem;
+	}
+}

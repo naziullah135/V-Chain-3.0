@@ -1,0 +1,67 @@
+$color-primary: #456eff;
+$color-primary-light: #b5c5ff;
+$color-text-dark: #555555;
+$color-text-light: #cdd0df;
+$color-grid: #dcdde6;
+$color-white: #f4f6ff;
+
+$font: "Poppins", sans-serif;
+
+*,
+*::before,
+*::after {
+	margin: 0;
+	padding: 0;
+	box-sizing: inherit;
+}
+
+html {
+	box-sizing: border-box;
+	font-size: 62.5%;
+
+	letter-spacing: 0;
+	scroll-behavior: smooth;
+	background-color: $color-white;
+}
+
+body {
+	font-family: $font;
+	background-color: $color-grid;
+	color: $color-text-dark;
+	// min-height: 100vh;
+}
+
+.title {
+	margin-top: calc(9rem + 10vh);
+	padding-left: 50px;
+	border-left: solid 4px $color-primary;
+	// background-color: $color-white;
+
+	&__light {
+		font-weight: 400;
+		font-size: 28px;
+		line-height: 108%;
+		letter-spacing: -0.045em;
+	}
+
+	&__bold {
+		font-weight: 700;
+		font-size: 42px;
+		line-height: 108%;
+		letter-spacing: -0.045em;
+		color: rgba(20, 30, 51, 0.815);
+	}
+}
+
+.ReactModal__Overlay {
+    opacity: 0;
+    transition: opacity 250ms ease-in-out;
+}
+
+.ReactModal__Overlay--after-open{
+    opacity: 1;
+}
+
+.ReactModal__Overlay--before-close{
+    opacity: 0;
+}

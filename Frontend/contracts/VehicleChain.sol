@@ -16,7 +16,7 @@ contract VehicleChain {
     }
 
     struct Vehicle {
-        address carOwner;
+        address vehicleOwner;
         string model;
         string brand;
         string carType;
@@ -34,6 +34,8 @@ contract VehicleChain {
         int updated_at;
     }
 
+
+
     address owner;
 
     mapping(address => VehicleOwner) vehicleOwners;
@@ -42,7 +44,7 @@ contract VehicleChain {
     mapping(string => bool) isVehicleIdExists;
 
     event vehicleCreated(string id, string model, string brand, string registrationNumber, int createdAt);
-    event vehicleUpdated(string id, string model, string brand, string registrationNumber);
+    event vehicleUpdated(string id, string model, string brand, string registrationNumber, int updated_at);
 
     function createVehicleOwner(
         string memory name,
@@ -180,6 +182,64 @@ contract VehicleChain {
         price = vehicle.price;
         created_at = vehicle.created_at;
         updated_at = vehicle.updated_at;
+    }
+
+    function updateVehicle(
+        string memory model,
+        string memory brand,
+        string memory carType,
+        string memory bodyType,
+        string memory engine,
+        string memory fuel,
+        uint mileage,
+        string memory drive,
+        string memory transmission,
+        string memory color,
+        uint seats,
+        string memory registrationNumber,
+        uint price,
+        int created_at,
+        int updated_at
+    ) public payable {
+        require(isVehicleOwnerExists[msg.sender] == true, "Vehicle owner not registered");
+        require(isVehicleIdExists[id] == false, "Vehicle already exists");
+        require(bytes(model).length > 0, "Model is required");
+        require(bytes(brand).length > 0, "Brand is required");
+        require(bytes(carType).length > 0, "Car type is required");
+        require(bytes(bodyType).length > 0, "Body type is required");
+        require(bytes(engine).length > 0, "Engine is required");
+        require(bytes(fuel).length > 0, "Fuel is required");
+        require(mileage > 0, "Mileage is invalid");
+        require(bytes(drive).length > 0, "Drive is required");
+        require(bytes(transmission).length > 0, "Transmission is required");
+        require(bytes(color).length > 0, "Color is required");
+        require(seats > 0, "Seat number is required");
+        require(bytes(registrationNumber).length > 0, "Registration number is required");
+        require(price > 0, "Price is required");
+        require(updated_at > 0, "UpdatedAt is invalid");
+        require(vehicles[id].vehicleOwner == msg.sender, "You are not authorized to update the vehicle information");
+
+        vehicles[id].model = model;
+        vehicles[id].brand = brand;
+        vehicles[id].carType = carType;
+        vehicles[id].bodyType = bodyType;
+        vehicles[id].engine = engine;
+        vehicles[id].fuel = fuel;
+        vehicles[id].mileage = mileage;
+        vehicles[id].drive = drive;
+        vehicles[id].transmission = transmission;
+        vehicles[id].color = color;
+        vehicles[id].seats = seats;
+        vehicles[id].registrationNumber = registrationNumber;
+        vehicles[id].price = price;
+        vehicles[id].updated_at = updated_at;
+
+        emit vehicleUpdated(id, model, brand, registrationNumber, updated_at);
+    }
+
+    function transfer(address newOwner) public payable {
+        require(owner == msg.sender);
+        owner = newOwner;
     }
 
 

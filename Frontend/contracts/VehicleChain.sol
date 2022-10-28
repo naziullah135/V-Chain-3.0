@@ -16,7 +16,7 @@ contract VehicleChain {
     }
 
     struct Vehicle {
-        address vehicleOwner;
+        string vehicleOwner;
         string model;
         string brand;
         string carType;
@@ -34,17 +34,51 @@ contract VehicleChain {
         int updated_at;
     }
 
+    // MSP stands for Membership Service Provider
+    struct MSP {
+        address mspName;
+        string location;
+        string email;
+        string password;
+        string token;
+        int created_at;
+        int updated_at;
+    }
 
+    struct ServicingData {
+        string msp;
+        string vehicleId;
+        string vehicleRegistrationNumber;
+        string description;
+        uint mileage;
+        string damagedParts;
+        string engineCondition;
+        bool isVehicleWellMaintained;
+        int created_at;
+    }
+
+    struct Token {
+        string token;
+    }
 
     address owner;
+    bool isValidAdmin = false;
 
-    mapping(address => VehicleOwner) vehicleOwners;
+
+    mapping(string => VehicleOwner) vehicleOwners;
     mapping(string => Vehicle) vehicles;
-    mapping(address => bool) isVehicleOwnerExists;
+    mapping(address => MSP) membershipServiceProvider;
+    mapping(string => ServicingData) servicingData;
+    mapping(string => bool) isVehicleOwnerExists;
     mapping(string => bool) isVehicleIdExists;
+    mapping(address => bool) isMSPExists;
+    mapping(string => bool) isServicingDataExists;
+    mapping(string => Token) tokens;
+    mapping(string => bool) isTokenValid;
 
     event vehicleCreated(string id, string model, string brand, string registrationNumber, int createdAt);
     event vehicleUpdated(string id, string model, string brand, string registrationNumber, int updated_at);
+    event servicingDataCreated(string id, string vehicleRegistrationNumber, string description, int created_at);
 
     function createVehicleOwner(
         string memory name,
@@ -53,15 +87,16 @@ contract VehicleChain {
         string memory email,
         int created_at
     ) public payable {
+        require(isValidAdmin == true, "InValid Admin");
         require(bytes(name).length > 0, "Name is required");
         require(bytes(nid).length > 0, "Nid is required");
         require(bytes(presentResidency).length > 0, "Present residency is required");
         require(bytes(email).length > 0, "Email is required");
         require(created_at > 0, "CreatedAt is invalid");
-        require(isVehicleOwnerExists[msg.sender] == false, "Vehicle Owner already registered");
+        require(isVehicleOwnerExists[id] == false, "Vehicle Owner already registered");
 
-        isVehicleOwnerExists[msg.sender] = true;
-        vehicleOwners[msg.sender] = VehicleOwner(name, nid, presentResidency, email, created_at);
+        isVehicleOwnerExists[id] = true;
+        vehicleOwners[id] = VehicleOwner(name, nid, presentResidency, email, created_at);
     }
 
     function getVehicleOwnerProfile() public view returns (
@@ -71,9 +106,10 @@ contract VehicleChain {
         string memory email,
         int created_at
     ) {
-        require(isVehicleOwnerExists[msg.sender] == true, "Vehicle Owner is not registered");
+        require(isValidAdmin == true, "InValid Admin");
+        require(isVehicleOwnerExists[id] == true, "Vehicle Owner is not registered");
 
-        VehicleOwner memory vehicleOwner = vehicleOwners[msg.sender];
+        VehicleOwner memory vehicleOwner = vehicleOwners[id];
         name = vehicleOwner.name;
         nid = vehicleOwner.nid;
         presentResidency = vehicleOwner.presentResidency;
@@ -87,20 +123,21 @@ contract VehicleChain {
         string memory presentResidency,
         string memory email
     ) public payable {
+        require(isValidAdmin == true, "InValid Admin");
         require(bytes(name).length > 0, "Name is required");
         require(bytes(nid).length > 0, "Nid is required");
         require(bytes(presentResidency).length > 0, "Present residency is required");
         require(bytes(email).length > 0, "Email is required");
-        require(isVehicleOwnerExists[msg.sender] == true, "User isn't registered");
+        require(isVehicleOwnerExists[id] == true, "User isn't registered");
 
-        vehicleOwners[msg.sender].name = name;
-        vehicleOwners[msg.sender].nid = nid;
-        vehicleOwners[msg.sender].presentResidency = presentResidency;
-        vehicleOwners[msg.sender].email = email;
+        vehicleOwners[id].name = name;
+        vehicleOwners[id].nid = nid;
+        vehicleOwners[id].presentResidency = presentResidency;
+        vehicleOwners[id].email = email;
     }
 
     function isVehicleOwnerRegistered() public view returns (bool){
-        return isVehicleOwnerExists[msg.sender];
+        return isVehicleOwnerExists[id];
     }
 
     function isOwner() public view returns (bool){
@@ -123,7 +160,8 @@ contract VehicleChain {
         uint price,
         int created_at
     ) public payable {
-        require(isVehicleOwnerExists[msg.sender] == true, "Vehicle owner not registered");
+        require(isValidAdmin == true, "InValid Admin");
+        require(isVehicleOwnerExists[id] == true, "Vehicle owner not registered");
         require(isVehicleIdExists[id] == false, "Vehicle already exists");
         require(bytes(model).length > 0, "Model is required");
         require(bytes(brand).length > 0, "Brand is required");
@@ -201,7 +239,8 @@ contract VehicleChain {
         int created_at,
         int updated_at
     ) public payable {
-        require(isVehicleOwnerExists[msg.sender] == true, "Vehicle owner not registered");
+        require(isValidAdmin == true, "InValid Admin");
+        require(isVehicleOwnerExists[id] == true, "Vehicle owner not registered");
         require(isVehicleIdExists[id] == false, "Vehicle already exists");
         require(bytes(model).length > 0, "Model is required");
         require(bytes(brand).length > 0, "Brand is required");
@@ -237,10 +276,96 @@ contract VehicleChain {
         emit vehicleUpdated(id, model, brand, registrationNumber, updated_at);
     }
 
+    function createMSP(
+        string mspName,
+        string location,
+        string email,
+        string password,
+        string token,
+        int created_at
+    ) public payable {
+        require(isTokenValid[token] == true, "Token is invalid");
+        require(bytes(mspName).length > 0, "MSP Name is required");
+        require(bytes(location).length > 0, "Location is required");
+        require(bytes(email).length > 0, "Email is required");
+        require(bytes(password).length > 0, "Password is required");
+        require(created_at > 0, "CreatedAt is invalid");
+        require(isMSPExists[msg.sender] == false, "MSP already exists");
+
+        isMSPExists[msg.sender] = true;
+        membershipServiceProvider[msg.sender] = membershipServiceProvider(name, nid, presentResidency, email, token, created_at);
+    }
+
+    function getMSPProfile() public view returns (
+        string mspName,
+        string location,
+        string email,
+        string password,
+        string token,
+        int created_at,
+        int updated_at
+    ) {
+        require(isMSPExists[msg.sender] == true, "MSP does not exists");
+    }
+
+    function updateMSP(
+        string mspName,
+        string location,
+        string email,
+        string password,
+        string token,
+        int updated_at
+    ) public payable {
+        require(tokens[token] == true, "Invalid token");
+        require(bytes(mspName).length > 0, "MSP Name is required");
+        require(bytes(location).length > 0, "Location is required");
+        require(bytes(email).length > 0, "Email is required");
+        require(bytes(password).length > 0, "Password is required");
+        require(updated_at_at > 0, "CreatedAt is invalid");
+        require(isMSPExists[msg.sender] == false, "Vehicle Owner already registered");
+
+        isMSPExists[msg.sender] = true;
+        membershipServiceProvider[msg.sender] = membershipServiceProvider(name, nid, presentResidency, email, token, created_at);
+    }
+
+
+
+    function loginAdmin(string memory gmail, string memory password) public view returns (bool) {
+        require(bytes(gmail).length > 0, "Gmail is required");
+        require(bytes(password).length > 0, "Gmail is required");
+
+        if (gmail == "brta@gmail.com" && password == "1234") {
+            isValidAdmin = true;
+        }
+        return isValid;
+    }
+
+    function loginMSP(string memory email, string memory password) public view returns (bool) {
+        require(bytes(gmail).length > 0, "Gmail is required");
+        require(bytes(password).length > 0, "Gmail is required");
+        require(membershipServiceProvider[msg.sender] == true, "Invalid MSP");
+
+        bool isValidMSP = false;
+
+        if (membershipServiceProvider[msg.sender].email == email && membershipServiceProvider[msg.sender].password == password) {
+            isValidMSP = true;
+        }
+
+        return isValidMSP;
+    }
+
     function transfer(address newOwner) public payable {
         require(owner == msg.sender);
         owner = newOwner;
     }
 
+    function hash(string memory _string) public pure returns(bytes32) {
+        return keccak256(abi.encodePacked(_string));
+    }
 
+    function generateToken(string memory token) public payable {
+        require(isTokenValid[token] == false, "Token already exits");
+
+        tokens[id] = token;
+    }
 }

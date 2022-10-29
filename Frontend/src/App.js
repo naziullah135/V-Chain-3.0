@@ -1,41 +1,26 @@
-import logo from './logo.svg';
-import './App.scss';
-import { Link } from 'react-router-dom';
-
-import Home from './pages/home/Home'
-
+import { CssBaseline, ThemeProvider } from '@mui/material';
+import { BrowserRouter, Route, Routes } from 'react-router-dom';
+import AddVehicles from './components/AddVehicles';
+import SideNav from './components/SideNav';
+import Users from './components/Users';
+import Home from './pages/Home';
+import Login from './pages/Login';
+import { theme } from './theme/theme';
 function App() {
   return (
-    <div className="home">
-      <div className="main-container">
-        {/* <div className="sidebar-dummy"></div> */}
-        <div className="sidebar" >
-          <Link className="logo" to='/'>
-            <img src={logo} width="140px" alt="" />
-          </Link>
-          <div className="profile">
-            profile
-          </div>
-        </div>
-
-        <main id='container' className="main"  >
-          <Home />
-        </main>
-
-        <div className="links">
-          <div className="nav">
-            <div className='nav--item menu active' ><span>Users</span></div>
-            <div className="nav--item menu" >Vehicles</div>
-            <div className="nav--item menu" >Contracts</div>
-            <div className="nav--item menu" >--------------</div>
-            <div className="nav--item menu" >Brands</div>
-            <div className="nav--item menu" >Models</div>
-          </div>
-
-        </div>
-
-      </div>
-    </div>
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<SideNav />} >
+            <Route index element={<Home />} />
+            <Route path="add-vehicles" element={<AddVehicles />} />
+            <Route path="users" element={<Users />} />
+          </Route>
+          <Route path="/login" element={<Login />} />
+        </Routes>
+      </BrowserRouter>
+    </ThemeProvider>
   );
 }
 

@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: MIT
+// Tells the Solidity compiler to compile only from v0.8.13 to v0.9.0
 pragma solidity ^0.8.0;
 
 contract VehicleChain {
@@ -68,7 +70,7 @@ contract VehicleChain {
     mapping(string => VehicleOwner) vehicleOwners;
     mapping(string => Vehicle) vehicles;
     mapping(address => MSP) membershipServiceProvider;
-    mapping(string => ServicingData) servicingData;
+    mapping(string => ServicingData) servicingHistory;
     mapping(string => bool) isVehicleOwnerExists;
     mapping(string => bool) isVehicleIdExists;
     mapping(address => bool) isMSPExists;
@@ -241,7 +243,6 @@ contract VehicleChain {
         uint seats,
         string memory registrationNumber,
         uint price,
-        int created_at,
         int updated_at
     ) public payable {
         require(isValidAdmin == true, "InValid Admin");
@@ -339,7 +340,8 @@ contract VehicleChain {
         require(isMSPExists[msg.sender] == true, "MSP does not registered");
 
         isMSPExists[msg.sender] = true;
-        membershipServiceProvider[msg.sender] = MSP(mspName, location, email, password, token, updated_at);
+        int createdAt = membershipServiceProvider[msg.sender].created_at;
+        membershipServiceProvider[msg.sender] = MSP(mspName, location, email, password, token, createdAt, updated_at);
     }
 
     function createServicingData(
@@ -356,36 +358,39 @@ contract VehicleChain {
         require(bytes(description).length > 0, "Location is required");
         require(mileage > 0, "Mileage is required");
         require(bytes(damagedParts).length > 0, "Damaged parts is required");
-        require(bytes(engineCondition) > 0, "Engine condition is required");
+        require(bytes(engineCondition).length > 0, "Engine condition is required");
         require(isVehicleWellMaintained == true || isVehicleWellMaintained == false, "IsVehicleWellMaintained will be true or false");
         require(isMSPExists[msg.sender] == true, "MSP does not exist");
 
-        MSP memory msp = membershipServiceProvider[msg.sender];
         isServicingDataExists[id] = true;
 
-        membershipServiceProvider[msg.sender] = MSP(msg.sender, vehicleRegistrationNumber, description, mileage, damagedParts,
+        servicingHistory[id] = ServicingData(msg.sender, vehicleRegistrationNumber, description, mileage, damagedParts,
             engineCondition, isVehicleWellMaintained, created_at);
 
 
         emit servicingDataCreated(id, vehicleRegistrationNumber, description, created_at);
     }
 
-    function loginAdmin(string memory gmail, string memory password) public view returns (bool) {
+    function loginAdmin(string memory gmail, string memory password) public returns (bool) {
         require(bytes(gmail).length > 0, "Gmail is required");
         require(bytes(password).length > 0, "Gmail is required");
 
-        if (gmail == "brta@gmail.com" && password == "1234") {
+        if (hash(gmail) == hash('brta@gmail.com') && hash(password) == hash('1234')) {
             isValidAdmin = true;
         }
         return isValidAdmin;
     }
 
-    function loginMSP(string memory email, string memory password) public view returns (bool) {
+    function loginMSP(string memory email, string memory password) public returns (bool) {
         require(bytes(email).length > 0, "Gmail is required");
         require(bytes(password).length > 0, "Gmail is required");
-        require(membershipServiceProvider[msg.sender] == true, "Invalid MSP");
+        require(isMSPExists[msg.sender] == true, "Invalid MSP");
 
-        if (membershipServiceProvider[msg.sender].email == email && membershipServiceProvider[msg.sender].password == password) {
+        MSP memory requestMSP = membershipServiceProvider[msg.sender];
+        string memory exEmail = requestMSP.email;
+        string memory exPassword = requestMSP.password;
+
+        if (hash(exEmail) == hash(email) && hash(exPassword) == hash(password)) {
             isValidMSP = true;
         }
 
@@ -401,8 +406,8 @@ contract VehicleChain {
         return keccak256(abi.encodePacked(_string));
     }
 
-    function generateToken(Token memory newToken, string memory id) public payable {
-        require(isTokenValid[newToken] == false, "Token already exits");
+    function generateToken(string memory newToken, string memory id) public payable {
+        require(isTokenValid[id] == false, "Token already exits");
 
         tokens[id] = Token(newToken);
     }

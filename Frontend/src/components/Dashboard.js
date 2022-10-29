@@ -16,7 +16,7 @@ const cardStyle = {
     },
     bgcolor: "#445FEB2B"
 }
-const Home = () => {
+const Dashboard = () => {
     return (
         <Container maxWidth="md">
             <Typography variant='h1' sx={{ fontSize: 64, fontWeight: 600, mt: 4 }}>Hi, Shoaib!</Typography>
@@ -61,4 +61,4 @@ const Home = () => {
     );
 };
 
-export default Home;
+export default Dashboard;

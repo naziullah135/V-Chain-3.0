@@ -1,56 +1,56 @@
-import { Box, Container, Fab, Paper, Typography } from '@mui/material';
-import React from 'react';
-import thumbnail from "./../assets/images/active-user.png";
-import CustomTable from './CustomTable';
 import AddIcon from '@mui/icons-material/Add';
 import SearchOutlinedIcon from '@mui/icons-material/SearchOutlined';
+import { Box, Container, Fab, Paper, Typography } from '@mui/material';
+import React from 'react';
+import thumbnail from "./../assets/images/c2.png";
+import CustomTable from './CustomTable';
 import { MuiTextField } from './SearchFiled';
-const users = [
+const vehicles = [
     {
         id: 101,
-        name: "Ignacio Chandler",
+        name: "BMW",
         image: thumbnail
     },
     {
-        id: 101,
-        name: "Naziullah Shawan",
+        id: 102,
+        name: "Mercedes",
         image: thumbnail
     },
     {
-        id: 101,
-        name: "Tanvir Rahman",
+        id: 103,
+        name: "Ferrari",
         image: thumbnail
     },
     {
-        id: 101,
-        name: "Jaed al zaber",
+        id: 104,
+        name: "Jaguar",
         image: thumbnail
     },
     {
-        id: 101,
-        name: "Al Amin Howlader",
+        id: 105,
+        name: "Toyota",
         image: thumbnail
     },
     {
-        id: 101,
-        name: "Ahmed ali",
+        id: 106,
+        name: "Mazda",
         image: thumbnail
     },
     {
-        id: 101,
-        name: "Sajeeb Hossain",
+        id: 107,
+        name: "Nissan",
         image: thumbnail
     },
     {
-        id: 101,
-        name: "Zulkarnine Mahmud",
+        id: 108,
+        name: "Audi",
         image: thumbnail
     },
 ]
 const headings = [
     {
         label: <Box ml={5}>
-            Owner
+            Vehicles
         </Box>,
         align: "left",
     }
@@ -63,12 +63,12 @@ const headings = [
     }
 ]
 
-const Users = () => {
+const Vehicles = () => {
     return (
         <Container>
             <Box p={4}>
                 <Box sx={{ display: "flex", alignItems: "center", mb: 4 }}>
-                    <Typography sx={{ fontSize: 20, fontWeight: 700, color: "primary.main" }}>Verified Users</Typography>
+                    <Typography sx={{ fontSize: 20, fontWeight: 700, color: "primary.main" }}>Vehicles</Typography>
                     <Fab size="small" color="primary" aria-label="add" sx={{ ml: 3 }}>
                         <AddIcon />
                     </Fab>
@@ -78,11 +78,11 @@ const Users = () => {
                     <MuiTextField size='small' fullWidth placeholder='Search...' />
                 </Box>
                 <Paper variant='outlined' sx={{ borderRadius: "15px", px: 4, py: 2 }}>
-                    <CustomTable rows={users} headings={headings} />
+                    <CustomTable rows={vehicles} headings={headings} />
                 </Paper>
             </Box>
         </Container>
     );
 };
 
-export default Users;
+export default Vehicles;

@@ -4,7 +4,8 @@ import React from 'react';
 import { styled } from '@mui/material/styles';
 import { drawerWidth } from '../theme/theme';
 import useScrollspy from '../hooks/useScrollSpy';
-
+import carImage from "./../assets/images/preview-car.jpeg";
+import userImage from "./../assets/images/preview-user.png";
 const MenuButton = styled(Button)(({ theme }) => ({
     fontWeight: 600,
     textTransform: "capitalize",
@@ -227,9 +228,23 @@ const AddVehicles = () => {
                         <Divider orientation='vertical' />
                     </Grid>
                     <Grid item md={5} xs={12}>
-                        <Box sx={{ p: 6 }}>
+                        <Box sx={{ p: 6, mt: 4, position: "sticky", top: 80 }}>
                             <Typography variant='h3' sx={{ fontSize: 28, fontWeight: 700 }}>Mercedes-Benz</Typography>
                             <Typography variant='h3' sx={{ fontSize: 15, fontWeight: 700, mt: 2 }}>E 220 4-matic 2.1 125kW</Typography>
+
+                            <Box sx={{ my: 4, "& img": { maxWidth: "100%", filter: "drop-shadow(0px 36px 68px rgba(33, 54, 159, 0.29))", borderRadius: "14px" } }}>
+                                <img src={carImage} alt="" />
+                            </Box>
+                            <Box sx={{ display: "flex", alignItems: "center" }}>
+                                <img src={userImage} alt="" />
+                                <Box ml={2}>
+                                    <Typography sx={{ fontSize: 23 }}>Vincent Mendoza</Typography>
+                                    <Typography sx={{ fontSize: 15, fontWeight: 700 }}>1920-200-300</Typography>
+                                </Box>
+                            </Box>
+                            <Box sx={{ mt: 5, textAlign: "center" }}>
+                                <Button sx={{ px: 7, py: 2 }} variant="contained" color='primary' size='large'>Create</Button>
+                            </Box>
                         </Box>
                     </Grid>
                 </Grid>

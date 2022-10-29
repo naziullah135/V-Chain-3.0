@@ -1,7 +1,7 @@
-import { Box, Button, Container, Grid, TextField, Typography } from '@mui/material';
+import { Box, Button, Container, Divider, Grid, TextField, Typography } from '@mui/material';
 import React from 'react';
-import carImg from "./../assets/images/car.jpg";
 import logo from "./../assets/images/logo.png";
+import carImg from "./../assets/images/car.jpg";
 const Login = () => {
     return (
         <Box sx={{ backgroundImage: `url("${carImg}")`, backgroundSize: "cover", backgroundRepeat: "no-repeat" }}>

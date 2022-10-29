@@ -36,7 +36,7 @@ contract VehicleChain {
 
     // MSP stands for Membership Service Provider
     struct MSP {
-        address mspName;
+        string mspName;
         string location;
         string email;
         string password;
@@ -81,6 +81,8 @@ contract VehicleChain {
     event servicingDataCreated(string id, string vehicleRegistrationNumber, string description, int created_at);
 
     function createVehicleOwner(
+        string memory id,
+        string memory ownerId,
         string memory name,
         string memory nid,
         string memory presentResidency,
@@ -93,13 +95,13 @@ contract VehicleChain {
         require(bytes(presentResidency).length > 0, "Present residency is required");
         require(bytes(email).length > 0, "Email is required");
         require(created_at > 0, "CreatedAt is invalid");
-        require(isVehicleOwnerExists[id] == false, "Vehicle Owner already registered");
+        require(isVehicleOwnerExists[ownerId] == false, "Vehicle Owner already registered");
 
-        isVehicleOwnerExists[id] = true;
+        isVehicleOwnerExists[ownerId] = true;
         vehicleOwners[id] = VehicleOwner(name, nid, presentResidency, email, created_at);
     }
 
-    function getVehicleOwnerProfile() public view returns (
+    function getVehicleOwnerProfile(string memory id) public view returns (
         string memory name,
         string memory nid,
         string memory presentResidency,
@@ -118,6 +120,7 @@ contract VehicleChain {
     }
 
     function updateVehicleOwner(
+        string memory id,
         string memory name,
         string memory nid,
         string memory presentResidency,
@@ -136,7 +139,7 @@ contract VehicleChain {
         vehicleOwners[id].email = email;
     }
 
-    function isVehicleOwnerRegistered() public view returns (bool){
+    function isVehicleOwnerRegistered(string memory id) public view returns (bool){
         return isVehicleOwnerExists[id];
     }
 
@@ -145,6 +148,7 @@ contract VehicleChain {
     }
 
     function registerVehicle(
+        string memory id,
         string memory model,
         string memory brand,
         string memory carType,
@@ -179,7 +183,7 @@ contract VehicleChain {
         require(created_at > 0, "CreatedAt is invalid");
 
         isVehicleIdExists[id] = true;
-        vehicles[id] = Vehicle(msg.sender, model,  brand, carType, bodyType, engine, fuel, mileage,
+        vehicles[id] = Vehicle(id, model,  brand, carType, bodyType, engine, fuel, mileage,
             drive, transmission, color, seats, registrationNumber, price, created_at, 0);
 
         emit vehicleCreated(id, model, brand, registrationNumber, created_at);
@@ -223,6 +227,7 @@ contract VehicleChain {
     }
 
     function updateVehicle(
+        string memory id,
         string memory model,
         string memory brand,
         string memory carType,
@@ -256,7 +261,6 @@ contract VehicleChain {
         require(bytes(registrationNumber).length > 0, "Registration number is required");
         require(price > 0, "Price is required");
         require(updated_at > 0, "UpdatedAt is invalid");
-        require(vehicles[id].vehicleOwner == msg.sender, "You are not authorized to update the vehicle information");
 
         vehicles[id].model = model;
         vehicles[id].brand = brand;
@@ -277,11 +281,11 @@ contract VehicleChain {
     }
 
     function createMSP(
-        string mspName,
-        string location,
-        string email,
-        string password,
-        string token,
+        string memory mspName,
+        string memory location,
+        string memory email,
+        string memory password,
+        string memory token,
         int created_at
     ) public payable {
         require(isTokenValid[token] == true, "Token is invalid");
@@ -293,30 +297,40 @@ contract VehicleChain {
         require(isMSPExists[msg.sender] == false, "MSP already exists");
 
         isMSPExists[msg.sender] = true;
-        membershipServiceProvider[msg.sender] = membershipServiceProvider(mspName, location, email, password, token, created_at, 0);
+        membershipServiceProvider[msg.sender] = MSP(mspName, location, email, password, token, created_at, 0);
     }
 
-    function getMSPProfile() public view returns (
-        string mspName,
-        string location,
-        string email,
-        string password,
-        string token,
+    function getMSPProfile(address requestMsp) public view returns (
+        string memory mspName,
+        string memory location,
+        string memory email,
+        string memory password,
+        string memory token,
         int created_at,
         int updated_at
     ) {
-        require(isMSPExists[msg.sender] == true, "MSP does not exists");
+        require(isValidAdmin == true, "Invalid Admin");
+        require(isMSPExists[requestMsp] == true, "MSP does not exists");
+
+        MSP memory newMsp = membershipServiceProvider[requestMsp];
+        mspName = newMsp.mspName;
+        location = newMsp.location;
+        email = newMsp.email;
+        password = newMsp.password;
+        token = newMsp.token;
+        created_at = newMsp.created_at;
+        updated_at = newMsp.updated_at;
     }
 
     function updateMSP(
-        string mspName,
-        string location,
-        string email,
-        string password,
-        string token,
+        string memory mspName,
+        string memory location,
+        string memory email,
+        string memory password,
+        string memory token,
         int updated_at
     ) public payable {
-        require(tokens[token] == true, "Invalid token");
+        require(isTokenValid[token] == true, "Invalid token");
         require(bytes(mspName).length > 0, "MSP Name is required");
         require(bytes(location).length > 0, "Location is required");
         require(bytes(email).length > 0, "Email is required");
@@ -325,15 +339,16 @@ contract VehicleChain {
         require(isMSPExists[msg.sender] == true, "MSP does not registered");
 
         isMSPExists[msg.sender] = true;
-        membershipServiceProvider[msg.sender] = membershipServiceProvider(mspName, location, email, password, token, updated_at);
+        membershipServiceProvider[msg.sender] = MSP(mspName, location, email, password, token, updated_at);
     }
 
     function createServicingData(
-        string vehicleRegistrationNumber,
-        string description,
+        string memory id,
+        string memory vehicleRegistrationNumber,
+        string memory description,
         uint mileage,
-        string damagedParts,
-        string engineCondition,
+        string memory damagedParts,
+        string memory engineCondition,
         bool isVehicleWellMaintained,
         int created_at
     ) public payable {
@@ -341,14 +356,14 @@ contract VehicleChain {
         require(bytes(description).length > 0, "Location is required");
         require(mileage > 0, "Mileage is required");
         require(bytes(damagedParts).length > 0, "Damaged parts is required");
-        require(bytes(engineCondition), "Engine condition is required");
+        require(bytes(engineCondition) > 0, "Engine condition is required");
         require(isVehicleWellMaintained == true || isVehicleWellMaintained == false, "IsVehicleWellMaintained will be true or false");
         require(isMSPExists[msg.sender] == true, "MSP does not exist");
 
         MSP memory msp = membershipServiceProvider[msg.sender];
         isServicingDataExists[id] = true;
 
-        msp[id] = MSP(msg.sender, vehicleRegistrationNumber, description, mileage, damagedParts,
+        membershipServiceProvider[msg.sender] = MSP(msg.sender, vehicleRegistrationNumber, description, mileage, damagedParts,
             engineCondition, isVehicleWellMaintained, created_at);
 
 
@@ -386,9 +401,9 @@ contract VehicleChain {
         return keccak256(abi.encodePacked(_string));
     }
 
-    function generateToken(string memory token) public payable {
-        require(isTokenValid[token] == false, "Token already exits");
+    function generateToken(Token memory newToken, string memory id) public payable {
+        require(isTokenValid[newToken] == false, "Token already exits");
 
-        tokens[id] = token;
+        tokens[id] = Token(newToken);
     }
 }

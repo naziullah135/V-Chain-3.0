@@ -62,6 +62,7 @@ contract VehicleChain {
 
     address owner;
     bool isValidAdmin = false;
+    bool isValidMSP = false;
 
 
     mapping(string => VehicleOwner) vehicleOwners;
@@ -292,7 +293,7 @@ contract VehicleChain {
         require(isMSPExists[msg.sender] == false, "MSP already exists");
 
         isMSPExists[msg.sender] = true;
-        membershipServiceProvider[msg.sender] = membershipServiceProvider(name, nid, presentResidency, email, token, created_at);
+        membershipServiceProvider[msg.sender] = membershipServiceProvider(mspName, location, email, password, token, created_at, 0);
     }
 
     function getMSPProfile() public view returns (
@@ -320,11 +321,11 @@ contract VehicleChain {
         require(bytes(location).length > 0, "Location is required");
         require(bytes(email).length > 0, "Email is required");
         require(bytes(password).length > 0, "Password is required");
-        require(updated_at_at > 0, "CreatedAt is invalid");
+        require(updated_at > 0, "CreatedAt is invalid");
         require(isMSPExists[msg.sender] == true, "MSP does not registered");
 
         isMSPExists[msg.sender] = true;
-        membershipServiceProvider[msg.sender] = membershipServiceProvider(name, nid, presentResidency, email, token, created_at);
+        membershipServiceProvider[msg.sender] = membershipServiceProvider(mspName, location, email, password, token, updated_at);
     }
 
     function createServicingData(
@@ -361,15 +362,13 @@ contract VehicleChain {
         if (gmail == "brta@gmail.com" && password == "1234") {
             isValidAdmin = true;
         }
-        return isValid;
+        return isValidAdmin;
     }
 
     function loginMSP(string memory email, string memory password) public view returns (bool) {
-        require(bytes(gmail).length > 0, "Gmail is required");
+        require(bytes(email).length > 0, "Gmail is required");
         require(bytes(password).length > 0, "Gmail is required");
         require(membershipServiceProvider[msg.sender] == true, "Invalid MSP");
-
-        bool isValidMSP = false;
 
         if (membershipServiceProvider[msg.sender].email == email && membershipServiceProvider[msg.sender].password == password) {
             isValidMSP = true;
